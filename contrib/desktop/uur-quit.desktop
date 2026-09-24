@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=退出 UU远程
+Name[zh_CN]=退出 UU远程
+GenericName=Stop UU Remote session
+GenericName[zh_CN]=停止 UU 远程会话（退出被控）
+Comment=Stop the uur bridge and Wine prefix so remote control is fully off
+Comment[zh_CN]=停止桥接和 Wine 前缀，彻底退出远程控制
+Exec=/home/sdr/.local/bin/uur stop
+Icon=/home/sdr/.local/opt/uur/usr/share/icons/hicolor/256x256/apps/uur.png
+Terminal=false
+Categories=Network;RemoteAccess;
+Keywords=remote;uu;停止;退出;
