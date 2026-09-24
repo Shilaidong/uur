@@ -279,7 +279,7 @@ fn detect_runtime_provider() -> Option<PathBuf> {
             "swaybg" => argument_after(&arguments, "-i").map(PathBuf::from),
             "xwallpaper" => arguments.last().map(PathBuf::from),
             "mpvpaper" => arguments.last().map(PathBuf::from),
-            "wpaperd" => wpaperd_link(),
+            "wpaperd" => wpaperd_link(&entry.path()),
             _ => None,
         };
         if let Some(path) = candidate.and_then(resolve_candidate) {
@@ -306,27 +306,28 @@ fn argument_after(arguments: &[String], option: &str) -> Option<String> {
 
 /// wpaperd >= 1.1.0 mirrors the current wallpaper of every output as a
 /// symlink under `$XDG_STATE_HOME/wpaperd/wallpapers`, rewritten on each
-/// change. The newest link wins; leftovers from earlier runs are older.
-fn wpaperd_link() -> Option<PathBuf> {
+/// change. Image paths are written verbatim, so absolute targets are used
+/// as-is while relative ones resolve against wpaperd's working directory.
+/// The newest resolvable link wins; leftovers from earlier runs are older.
+fn wpaperd_link(proc: &Path) -> Option<PathBuf> {
+    let cwd = std::fs::read_link(proc.join("cwd")).ok()?;
     std::fs::read_dir(state_home().join("wpaperd/wallpapers"))
         .ok()?
         .flatten()
         .filter_map(|entry| {
-            let target = link_target(&entry.path())?;
-            let modified = std::fs::symlink_metadata(entry.path())
-                .ok()?
-                .modified()
-                .ok()?;
-            Some((modified, target))
+            let link = entry.path();
+            let target = std::fs::read_link(&link).ok()?;
+            let target = if target.is_absolute() {
+                target
+            } else {
+                cwd.join(target)
+            };
+            let path = resolve_candidate(target)?;
+            let modified = std::fs::symlink_metadata(&link).ok()?.modified().ok()?;
+            Some((modified, path))
         })
         .max_by_key(|(modified, _)| *modified)
-        .map(|(_, target)| target)
-}
-
-fn link_target(link: &Path) -> Option<PathBuf> {
-    // Let the filesystem resolve relative symlink targets from the link's
-    // parent directory, as required by symlink semantics.
-    link.canonicalize().ok()
+        .map(|(_, path)| path)
 }
 
 fn wallpaper_from_value(value: &str, provider: &'static str) -> Option<Wallpaper> {
