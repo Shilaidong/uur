@@ -1,0 +1,24 @@
+[Desktop Entry]
+Type=Application
+Name=UU Remote
+Name[zh_CN]=UU远程
+GenericName=Remote Desktop Client
+GenericName[zh_CN]=远程桌面客户端
+Comment=Start the full UU Remote session on this Linux desktop
+Comment[zh_CN]=在本 Linux 桌面启动完整的 UU 远程会话
+# Adjust the Exec/TryExec/Icon paths to your install prefix.
+Exec=/home/sdr/.local/bin/uur run
+TryExec=/home/sdr/.local/bin/uur
+Icon=/home/sdr/.local/opt/uur/usr/share/icons/hicolor/256x256/apps/uur.png
+# Fixes the GNOME "gear placeholder" for the running Wine window; the live
+# window class is exactly "gameviewer.exe".
+StartupWMClass=gameviewer.exe
+Terminal=false
+Categories=Network;RemoteAccess;
+Keywords=remote;desktop;uu;网易;远程;
+Actions=Quit;
+
+[Desktop Action Quit]
+Name=退出 UU远程
+Name[zh_CN]=退出 UU远程
+Exec=/home/sdr/.local/bin/uur stop
